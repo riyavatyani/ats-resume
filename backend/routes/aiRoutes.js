@@ -1,11 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const { protect } = require("../middlewares/authMiddleware");
+const { generateAI } = require("../controllers/aiController");
 
-const { generateResume } = require("../controllers/aiController");
-const { aiLimiter } = require("../middlewares/rateLimit");
-
-// ✅ AI resume generation route (RATE-LIMITED)
-router.post("/generate-resume", aiLimiter, generateResume);
-
+router.post("/generate", protect, generateAI);
 
 module.exports = router;
