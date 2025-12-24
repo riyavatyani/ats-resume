@@ -4,7 +4,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-exports.generateResume = async (req, res) => {
+const generateAI = async (req, res) => {
   try {
     const data = req.body;
 
@@ -56,7 +56,6 @@ Resume data:
 ${JSON.stringify(data, null, 2)}
 `;
 
-    // ✅ CORRECT FOR openai v4+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -67,11 +66,9 @@ ${JSON.stringify(data, null, 2)}
       max_tokens: 900,
     });
 
-    const aiText = response.choices[0].message.content;
-
-    res.json({ text: aiText });
+    res.json({ text: response.choices[0].message.content });
   } catch (err) {
-    console.error("🔥 OPENAI ERROR FULL 👉", err);
+    console.error("🔥 OPENAI ERROR 👉", err);
     res.status(500).json({
       message: "AI generation failed",
       error: err.message,
@@ -79,34 +76,4 @@ ${JSON.stringify(data, null, 2)}
   }
 };
 
-//     const prompt = `
-// You are an expert ATS resume writer with hiring experience.
-
-// GOAL:
-// Rewrite the provided resume information into a highly professional,
-// ATS-optimized resume suitable for modern tech roles.
-
-// STRICT RULES:
-// - Do NOT invent experience
-// - Improve grammar and clarity
-// - Use strong action verbs
-// - NO markdown, emojis, explanations
-// - OUTPUT PLAIN TEXT ONLY
-
-// OUTPUT FORMAT:
-
-// Summary:
-// 3–4 professional sentences
-
-// Experience:
-//  Bullet points without bullet symbols bcoz we already have
-
-// Projects:
-//  Bullet points
-
-// Education:
-// Clean rewritten education
-
-// Skills:
-// - Skill
-// - Skill
+module.exports = { generateAI };
