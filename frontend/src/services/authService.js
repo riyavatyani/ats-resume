@@ -1,8 +1,11 @@
 import axios from "axios";
+import { API_BASE } from "../config/api";
+
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
+  baseURL: `${API_BASE}/api/auth`,
 });
+
 
 // check if email exists
 export const checkEmailExists = (email) =>

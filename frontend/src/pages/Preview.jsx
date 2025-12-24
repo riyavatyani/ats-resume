@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
+import axios from "axios";
 
-// ✅ IMPORT YOUR TEMPLATES
+import { API_BASE } from "../config/api";
+
+// templates
 import TemplateOne from "../templates/TemplateOne";
 import TemplateTwo from "../templates/TemplateTwo";
 import TemplateThree from "../templates/TemplateThree";
 
-import axios from "axios";
-const [resume, setResume] = useState(null);
-const [draft, setDraft] = useState(null);
-
+import { v4 as uuidv4 } from "uuid";
 
 
 /* ================= AI PARSER ================= */
@@ -108,7 +108,8 @@ const Preview = () => {
   useEffect(() => {
     let resumeId = localStorage.getItem("resumeId");
     if (!resumeId) {
-      resumeId = crypto.randomUUID();
+      resumeId = uuidv4();
+
       localStorage.setItem("resumeId", resumeId);
     }
   }, []);
@@ -138,13 +139,14 @@ const Preview = () => {
       }
 
       const res = await axios.get(
-        `http://localhost:8000/api/resume/${resumeId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  `${API_BASE}/api/resume/${resumeId}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
       setResume(res.data);
       setDraft(res.data);
@@ -251,15 +253,16 @@ const handlePaidDownload = async () => {
     }
 
     // 1️⃣ Create order from backend
-    const { data } = await axios.post(
-      "http://localhost:8000/api/payment/create-order",
-      { resumeId },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+   const { data } = await axios.post(
+  `${API_BASE}/api/payment/create-order`,
+  { resumeId },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
     // 2️⃣ Razorpay options (NO hardcoded amount)
     const options = {
@@ -272,18 +275,19 @@ const handlePaidDownload = async () => {
 
       handler: async function (response) {
         // 3️⃣ Verify payment on backend
-        await axios.post(
-          "http://localhost:8000/api/payment/verify",
-          {
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_order_id: response.razorpay_order_id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      await axios.post(
+  `${API_BASE}/api/payment/verify`,
+  {
+    razorpay_payment_id: response.razorpay_payment_id,
+    razorpay_order_id: response.razorpay_order_id,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
         // 4️⃣ Download WITHOUT watermark
         downloadWithoutWatermark();
@@ -322,15 +326,16 @@ const handleDownloadWithoutWatermark = async () => {
       return;
     }
 
-    const res = await axios.get(
-      "http://localhost:8000/api/payment/can-download",
-      {
-        params: { resumeId },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+ const res = await axios.get(
+  `${API_BASE}/api/payment/can-download`,
+  {
+    params: { resumeId },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
     if (res.data.allowed) {
       downloadWithoutWatermark();

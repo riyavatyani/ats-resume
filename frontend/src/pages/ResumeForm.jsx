@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../config/api";
 
 const ResumeForm = () => {
   const navigate = useNavigate();
@@ -40,8 +41,8 @@ localStorage.removeItem("formattedResume");
     try {
       setLoadingAI(true);
 
-    const res = await axios.post(
-  "http://localhost:8000/api/ai/generate-resume",
+ const res = await axios.post(
+  `${API_BASE}/api/ai/generate-resume`,
   formData
 );
 
@@ -72,7 +73,7 @@ localStorage.removeItem("formattedResume");
 
     // 2️⃣ SAVE RESUME TO MONGODB (STEP 3)
     const saveRes = await axios.post(
-      "http://localhost:8000/api/resume/save",
+      "${API_BASE}//api/resume/save",
       {
         ...formData,
         aiText: generatedText,
@@ -88,10 +89,11 @@ localStorage.removeItem("formattedResume");
     localStorage.setItem("resumeId", saveRes.data._id);
 
     // 3️⃣ Existing auth flow (unchanged)
-    const res = await axios.post(
-      "http://localhost:8000/api/auth/check-email",
-      { email: formData.email }
-    );
+   const res = await axios.post(
+  `${API_BASE}/api/auth/check-email`,
+  { email: formData.email }
+);
+
 
     res.data.exists ? navigate("/login") : navigate("/register");
 
