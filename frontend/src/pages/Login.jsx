@@ -15,19 +15,33 @@ const Login = () => {
     try {
       setLoading(true);
 
+      // 🔥 ALWAYS normalize email on frontend
       const res = await axios.post(
-  `${API_BASE}/api/auth/login`,
-  { email, password }
-);
+        `${API_BASE}/api/auth/login`,
+        {
+          email: email.toLowerCase().trim(),
+          password,
+        }
+      );
 
-
+      // 🔐 Save auth
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // ✅ Correct flow
+      // ✅ Resume flow continues here
       navigate("/dashboard");
+
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      console.error(
+        "LOGIN ERROR 👉",
+        err.response?.data || err.message
+      );
+
+      alert(
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Login failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -36,7 +50,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-8">
-        
+
         {/* HEADER */}
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-semibold text-gray-900">
@@ -48,7 +62,7 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
-          
+
           <div>
             <label className="text-sm font-medium text-gray-700">
               Email
