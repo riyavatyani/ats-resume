@@ -98,10 +98,24 @@ localStorage.removeItem("formattedResume");
     res.data.exists ? navigate("/login") : navigate("/register");
 
   } catch (err) {
-    console.error("Resume save failed", err);
-    alert("Something went wrong while saving resume");
+  console.error(
+    "API ERROR 👉",
+    err.response?.data || err.message
+  );
+
+  if (err.response?.status === 401) {
+    alert("Please login first");
+    navigate("/login");
+    return;
   }
-};
+
+  alert(
+    err.response?.data?.error ||
+    err.response?.data?.message ||
+    "Request failed"
+  );
+}
+
 
 
   return (
