@@ -13,20 +13,44 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const data = localStorage.getItem("resumeData");
-    if (data) {
-      const parsed = JSON.parse(data);
-      setResume(parsed);
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
 
+  const fetchResume = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/resume/latest`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("No resume");
+
+      const data = await res.json();
+
+      setResume(data);
       setExtra({
-        projects: parsed.projects || "",
-        achievements: parsed.achievements || "",
-        certifications: parsed.certifications || "",
-        links: parsed.links || "",
+        projects: data.projects || "",
+        achievements: data.achievements || "",
+        certifications: data.certifications || "",
+        links: data.links || "",
       });
+
+    } catch (err) {
+      console.error("FETCH RESUME ERROR 👉", err);
     }
-  }, []);
+  };
+
+  fetchResume();
+}, []);
+
 
   if (!resume) {
     return <div className="p-10">No resume data found.</div>;
