@@ -106,13 +106,61 @@ const Preview = () => {
 
   // ---------- ensure resumeId exists ----------
   useEffect(() => {
-    let resumeId = localStorage.getItem("resumeId");
-    if (!resumeId) {
-      resumeId = uuidv4();
+  const token = localStorage.getItem("token");
+  const draft = localStorage.getItem("resumeDraft");
 
-      localStorage.setItem("resumeId", resumeId);
+  // safety checks
+  if (!token || !draft) {
+    navigate("/");
+    return;
+  }
+
+  const runAI = async () => {
+    try {
+      const res = await axios.post(
+        `${API_BASE}/api/ai/generate`,
+        JSON.parse(draft),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // 1️⃣ Show preview
+      setAiText(res.data.text);
+
+      // 2️⃣ Save to Mongo (NOW we save)
+      const saveRes = await axios.post(
+        `${API_BASE}/api/resume/save`,
+        {
+          ...JSON.parse(draft),
+          aiText: res.data.text,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // 3️⃣ Store real Mongo ID
+      localStorage.setItem("resumeId", saveRes.data._id);
+
+      // 4️⃣ Cleanup
+      localStorage.removeItem("resumeDraft");
+
+    } catch (err) {
+      console.error(
+        "DASHBOARD ERROR 👉",
+        err.response?.data || err.message
+      );
     }
-  }, []);
+  };
+
+  runAI();
+}, []);
+
 
 
   // ---------- state ----------

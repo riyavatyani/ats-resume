@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_BASE } from "../config/api";
 
 const ResumeForm = () => {
   const navigate = useNavigate();
@@ -17,9 +15,6 @@ const ResumeForm = () => {
     photo: "",
   });
 
-  const [aiText, setAiText] = useState("");
-  const [loadingAI, setLoadingAI] = useState(false);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -34,102 +29,35 @@ const ResumeForm = () => {
     };
     reader.readAsDataURL(file);
   };
-localStorage.removeItem("formattedResume");
 
-  // 🔥 AI GENERATION
-  const handleGenerateAI = async () => {
-    try {
-      setLoadingAI(true);
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
- const res = await axios.post(
-  `${API_BASE}/api/ai/generate-resume`,
-  formData
-);
-
-
-
-
-
-      setAiText(res.data.text);
-      return res.data.text;
-    } catch (err) {
-      console.error("AI generation failed", err);
-      alert("AI generation failed");
-      return null;
-    } finally {
-      setLoadingAI(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // 1️⃣ Generate AI resume FIRST
-  const generatedText = await handleGenerateAI();
-  if (!generatedText) return;
-
-  try {
-    const token = localStorage.getItem("token");
-
-    // 2️⃣ SAVE RESUME TO MONGODB (STEP 3)
-    const saveRes = await axios.post(
-      "${API_BASE}//api/resume/save",
-      {
-        ...formData,
-        aiText: generatedText,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    // ✅ 1. Save draft ALWAYS
+    localStorage.setItem(
+      "resumeDraft",
+      JSON.stringify(formData)
     );
 
-    // 🔥 VERY IMPORTANT
-    localStorage.setItem("resumeId", saveRes.data._id);
+    // ✅ 2. Check login
+    const token = localStorage.getItem("token");
 
-    // 3️⃣ Existing auth flow (unchanged)
-   const res = await axios.post(
-  `${API_BASE}/api/auth/check-email`,
-  { email: formData.email }
-);
+    if (!token) {
+      navigate("/login");
+      return; // ⛔ STOP here
+    }
 
-
-    res.data.exists ? navigate("/login") : navigate("/register");
-
-  } catch (err) {
-  console.error(
-    "API ERROR 👉",
-    err.response?.data || err.message
-  );
-
-  if (err.response?.status === 401) {
-    alert("Please login first");
-    navigate("/login");
-    return;
-  }
-
-  alert(
-    err.response?.data?.error ||
-    err.response?.data?.message ||
-    "Request failed"
-  );
-}
-
-
+    // ✅ 3. If already logged in
+    navigate("/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center px-4 py-12">
       <div className="w-full max-w-3xl bg-white border border-gray-200 rounded-xl p-8">
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Build Your Resume
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Fill in your details to generate an ATS-optimized resume.
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+          Build Your Resume
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -158,7 +86,6 @@ localStorage.removeItem("formattedResume");
             </label>
           </div>
 
-          {/* BASIC INFO */}
           <div className="grid md:grid-cols-2 gap-4">
             <input name="name" placeholder="Full name" required className="input" onChange={handleChange} />
             <input name="email" placeholder="Email address" required className="input" onChange={handleChange} />
@@ -168,15 +95,13 @@ localStorage.removeItem("formattedResume");
 
           <textarea name="education" placeholder="Education" className="input h-24" onChange={handleChange} />
           <textarea name="experience" placeholder="Experience" className="input h-28" onChange={handleChange} />
-          <input name="keywords" placeholder="ATS keywords (job-specific)" className="input" onChange={handleChange} />
+          <input name="keywords" placeholder="ATS keywords" className="input" onChange={handleChange} />
 
-          {/* CTA */}
           <button
             type="submit"
-            disabled={loadingAI}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-lg font-medium transition"
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-lg font-medium"
           >
-            {loadingAI ? "Generating with AI..." : "Generate Resume →"}
+            Generate Resume →
           </button>
 
         </form>
