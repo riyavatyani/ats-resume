@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* input styling */
+.input {
+  @apply w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-violet-500;
+}
+
+/* hide buttons while PDF */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ===== RESUME COLOR FIX ===== */
+
+/* RIGHT SIDE (white background) */
+#resume .resume-right,
+#resume .resume-right p,
+#resume .resume-right h1,
+#resume .resume-right h2,
+#resume .resume-right h3,
+#resume .resume-right li,
+#resume .resume-right span {
+  color: #000000;
+  background: transparent;
+}
+
+/* LEFT SIDEBAR (dark background) */
+#resume .resume-left {
+  background-color: rgb(15, 23, 42);
+}
+
+#resume .resume-left,
+#resume .resume-left p,
+#resume .resume-left h1,
+#resume .resume-left h2,
+#resume .resume-left h3,
+#resume .resume-left li,
+#resume .resume-left span {
+  color: #ffffff;
+}
+
+/* divider line */
+#resume hr {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* html2pdf SAFE COLORS */
+/* #resume,
+#resume * {
+  color: rgb(0, 0, 0) !important;
+} */
+
+#resume .bg-slate-900 {
+  background-color: rgb(15, 23, 42) !important;
+}
+
+#resume .text-white {
+  color: rgb(255, 255, 255) !important;
+}
+/* page break control */
+.page-break {
+  page-break-before: always;
+}
+
+.section {
+  page-break-inside: avoid;
+}
