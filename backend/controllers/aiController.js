@@ -17,7 +17,7 @@ You are an expert ATS resume writer.
 
 correct spelling mistakes 
 Rewrite the following resume data into a professional, ATS-optimized resume.
-Do not add fake experience. Improve grammar and clarity only.
+Do not add fake experience , achievements. Improve grammar and clarity only.
 GOAL:
 Rewrite the provided resume information into a highly professional,
 ATS-optimized resume suitable for modern tech roles.
@@ -43,6 +43,7 @@ Experience:
 
 Projects:
  Bullet points
+ if name of project is given explain it clearly
 
 Achievements:
 cheack speelling and arrange in sequence line wise
