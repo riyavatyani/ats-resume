@@ -4,8 +4,7 @@ const Resume = require("../models/Resume");
 const { protect } = require("../middlewares/authMiddleware");
 
 /* ===============================
-   CREATE or UPDATE RESUME
-   (Guest or Auth)
+   CREATE RESUME (GUEST)
 ================================ */
 router.post("/save", async (req, res) => {
   try {
@@ -13,7 +12,6 @@ router.post("/save", async (req, res) => {
 
     let resume;
 
-    // 🔁 UPDATE existing resume
     if (resumeId) {
       resume = await Resume.findByIdAndUpdate(
         resumeId,
@@ -24,9 +22,7 @@ router.post("/save", async (req, res) => {
       if (!resume) {
         return res.status(404).json({ message: "Resume not found" });
       }
-    }
-    // 🆕 CREATE new resume (guest allowed)
-    else {
+    } else {
       resume = await Resume.create({
         ...data,
         user: null,
@@ -42,7 +38,6 @@ router.post("/save", async (req, res) => {
 
 /* ===============================
    FETCH RESUME BY ID (PREVIEW)
-   Guest allowed
 ================================ */
 router.get("/:id", async (req, res) => {
   try {
@@ -60,12 +55,7 @@ router.get("/:id", async (req, res) => {
 });
 
 /* ===============================
-   CLAIM RESUME AFTER LOGIN
-   Protected
-================================ */
-/* ===============================
    FETCH LATEST RESUME (AFTER LOGIN)
-   Protected
 ================================ */
 router.get("/latest", protect, async (req, res) => {
   try {
@@ -73,36 +63,11 @@ router.get("/latest", protect, async (req, res) => {
       user: req.user._id,
     }).sort({ createdAt: -1 });
 
-    // ⚠️ IMPORTANT: do NOT throw error
-    if (!resume) {
-      return res.status(200).json(null);
-    }
-
-    res.json(resume);
-  } catch (err) {
-    console.error("Fetch latest resume error 👉", err);
-    res.status(500).json({ message: "Failed to fetch resume" });
-  }
-});
-/* ===============================
-   FETCH LATEST RESUME (AFTER LOGIN)
-   Protected
-================================ */
-router.get("/latest", protect, async (req, res) => {
-  try {
-    const resume = await Resume.findOne({
-      user: req.user._id,
-    }).sort({ createdAt: -1 });
-
-    // ⚠️ IMPORTANT: do NOT throw error
-    if (!resume) {
-      return res.status(200).json(null);
-    }
-
-    res.json(resume);
+    return res.json(resume || null);
   } catch (err) {
     console.error("Fetch latest resume error 👉", err);
     res.status(500).json({ message: "Failed to fetch resume" });
   }
 });
 
+module.exports = router;
