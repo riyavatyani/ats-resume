@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const resumeRoutes = require("./routes/resumeRoutes");
+const downloadRoutes = require("./routes/downloadRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.set("trust proxy", 1); // ✅ MUST BE BEFORE rate-limit
 // middlewares
 app.use(cors());
 app.use(express.json());
+
 
 // rate limiter
 const limiter = rateLimit({
@@ -33,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/download", downloadRoutes);
 
 // ==================== SERVE FRONTEND ====================
 // Serve frontend build
