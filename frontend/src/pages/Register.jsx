@@ -5,103 +5,105 @@ import axios from "axios";
 const Register = () => {
   const navigate = useNavigate();
 
-  // get resume-first data
-  const resumeData = JSON.parse(localStorage.getItem("resumeData"));
-
+  const [resume, setResume] = useState(null);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔒 If someone opens /register directly without resume data
   useEffect(() => {
-    if (!resumeData) {
-      navigate("/register");
+    const resumeId = localStorage.getItem("resumeId");
+
+    if (!resumeId) {
+      navigate("/build");
+      return;
     }
-  }, [resumeData, navigate]);
+
+    fetch(`/api/resume/${resumeId}`)
+      .then((res) => res.json())
+      .then((data) => setResume(data))
+      .catch(() => navigate("/build"));
+  }, [navigate]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!resumeData) return;
+    if (!resume) return;
 
     try {
       setLoading(true);
 
-     const res = await axios.post(
-  `/api/auth/register`,
-  {
-    name: resumeData.name,
-    email: resumeData.email,
-    password,
-  }
-);
+      const res = await axios.post("/api/auth/register", {
+        name: resume.name,
+        email: resume.email,
+        password,
+      });
 
+      const token = res.data.token;
 
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      // claim guest resume
+      await axios.post(
+        "/api/resume/claim",
+        { resumeId: resume._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       navigate("/dashboard");
-    } catch (error) {
-      alert(error?.response?.data?.message || "Registration failed");
+    } catch (err) {
+      alert(err?.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!resumeData) return null; // prevent flicker
+  // ⛔ IMPORTANT: prevent blank screen
+  if (!resume) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-600 to-indigo-700 px-4">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-8">
         <h2 className="text-2xl font-bold text-center text-gray-800">
-          Create Your Account ✨
+          Create Your Account
         </h2>
+
         <p className="text-sm text-gray-500 text-center mt-1">
           Just set a password to continue
         </p>
 
         <form onSubmit={handleRegister} className="mt-6 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Name
-            </label>
+            <label className="text-sm font-medium">Name</label>
             <input
-              type="text"
-              value={resumeData.name}
+              value={resume.name}
               disabled
-              className="mt-1 w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+              className="w-full mt-1 input bg-gray-100"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label className="text-sm font-medium">Email</label>
             <input
-              type="email"
-              value={resumeData.email}
+              value={resume.email}
               disabled
-              className="mt-1 w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+              className="w-full mt-1 input bg-gray-100"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Password
-            </label>
+            <label className="text-sm font-medium">Password</label>
             <input
               type="password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Create a strong password"
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="w-full mt-1 input"
             />
           </div>
 
           <button
-            type="submit"
             disabled={loading}
-            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full bg-violet-600 text-white py-2 rounded-lg"
           >
             {loading ? "Creating account..." : "Continue →"}
           </button>
