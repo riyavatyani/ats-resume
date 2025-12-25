@@ -1,0 +1,6 @@
+[35mbackend/package-lock.json[m[36m:[m        "[1;31mnodemailer[m": "^7.0.11",
+[35mbackend/package-lock.json[m[36m:[m    "node_modules/[1;31mnodemailer[m": {
+[35mbackend/package-lock.json[m[36m:[m      "resolved": "https://registry.npmjs.org/[1;31mnodemailer[m/-/[1;31mnodemailer[m-7.0.11.tgz",
+[35mbackend/package.json[m[36m:[m    "[1;31mnodemailer[m": "^7.0.11",
+[35mbackend/utils/sendEmail.js[m[36m:[mconst [1;31mnodemailer[m = require("[1;31mnodemailer[m");
+[35mbackend/utils/sendEmail.js[m[36m:[m    const transporter = [1;31mnodemailer[m.createTransport({

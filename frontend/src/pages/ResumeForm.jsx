@@ -38,10 +38,12 @@ const ResumeForm = () => {
     try {
       setLoadingAI(true);
 
-      const res = await axios.post(
-        "/api/ai/generate-resume",
-        formData
-      );
+      const res = await axios.post("/api/ai/generate", formData, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
 
       return res.data.text;
     } catch (err) {

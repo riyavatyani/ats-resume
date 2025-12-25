@@ -5,6 +5,6 @@ const { generateAI } = require("../controllers/aiController");
 
 console.log("AI ROUTE LOADED, generateAI =", generateAI);
 
-router.post("/generate", protect, generateAI);
+router.post("/generate", generateAI);
 
 module.exports = router;
