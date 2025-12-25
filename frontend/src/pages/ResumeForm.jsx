@@ -60,34 +60,30 @@ localStorage.removeItem("formattedResume");
     }
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // 1️⃣ Generate AI resume FIRST
+  // cleanup (do NOT keep this at top-level)
+  localStorage.removeItem("formattedResume");
+
+  // 1️⃣ Generate AI
   const generatedText = await handleGenerateAI();
   if (!generatedText) return;
 
   try {
-    const token = localStorage.getItem("token");
-
-    // 2️⃣ SAVE RESUME TO MONGODB (STEP 3)
+    // 2️⃣ SAVE RESUME AS GUEST (NO TOKEN)
     const saveRes = await axios.post(
       "http://localhost:8000/api/resume/save",
       {
         ...formData,
         aiText: generatedText,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       }
     );
 
-    // 🔥 VERY IMPORTANT
+    // store resumeId for later linking
     localStorage.setItem("resumeId", saveRes.data._id);
 
-    // 3️⃣ Existing auth flow (unchanged)
+    // 3️⃣ CHECK EMAIL → LOGIN / REGISTER
     const res = await axios.post(
       "http://localhost:8000/api/auth/check-email",
       { email: formData.email }
@@ -100,6 +96,7 @@ localStorage.removeItem("formattedResume");
     alert("Something went wrong while saving resume");
   }
 };
+
 
 
   return (

@@ -7,8 +7,6 @@ import TemplateTwo from "../templates/TemplateTwo";
 import TemplateThree from "../templates/TemplateThree";
 
 import axios from "axios";
-const [resume, setResume] = useState(null);
-const [draft, setDraft] = useState(null);
 
 
 
@@ -102,21 +100,15 @@ const calculateATS = (resume) => {
 /* ================= PREVIEW ================= */
 const Preview = () => {
 
-  //
+  const [resume, setResume] = useState(null);
+  const [draft, setDraft] = useState(null);
 
   // ---------- ensure resumeId exists ----------
-  useEffect(() => {
-    let resumeId = localStorage.getItem("resumeId");
-    if (!resumeId) {
-      resumeId = crypto.randomUUID();
-      localStorage.setItem("resumeId", resumeId);
-    }
-  }, []);
+
 
 
   // ---------- state ----------
-  const [resume, setResume] = useState(null);
-  const [draft, setDraft] = useState(null);
+  
   const [editMode, setEditMode] = useState(false);
   const [openDownload, setOpenDownload] = useState(false);
 
@@ -127,34 +119,42 @@ const Preview = () => {
 
   // ---------- LOAD RESUME (SINGLE SOURCE OF TRUTH) ----------
  useEffect(() => {
-  const fetchResumeFromDB = async () => {
+  const fetchResume = async () => {
+    const resumeId = localStorage.getItem("resumeId");
+    if (!resumeId) return;
+
     try {
-      const token = localStorage.getItem("token");
-      const resumeId = localStorage.getItem("resumeId");
-
-      if (!token || !resumeId) {
-        console.error("Missing token or resumeId");
-        return;
-      }
-
       const res = await axios.get(
-        `http://localhost:8000/api/resume/${resumeId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `http://localhost:8000/api/resume/${resumeId}`
       );
 
-      setResume(res.data);
-      setDraft(res.data);
+      const resumeData = res.data;
+
+      // 🔥 THIS IS WHAT YOU WERE MISSING
+      if (resumeData.aiText) {
+        const parsed = parseResume(resumeData.aiText, resumeData);
+
+        setResume({
+          ...resumeData,
+          ...parsed, // summary, experience, skills, etc.
+        });
+
+        setDraft({
+          ...resumeData,
+          ...parsed,
+        });
+      } else {
+        setResume(resumeData);
+        setDraft(resumeData);
+      }
     } catch (err) {
       console.error("Failed to fetch resume from DB", err);
     }
   };
 
-  fetchResumeFromDB();
+  fetchResume();
 }, []);
+
 
 
   // ---------- loading ----------
