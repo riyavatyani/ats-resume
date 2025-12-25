@@ -25,11 +25,33 @@ const Login = () => {
       );
 
       // 🔐 Save auth
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+const token = res.data.token;
+localStorage.setItem("token", token);
+localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // ✅ Resume flow continues here
-      navigate("/dashboard");
+// 🔥 CLAIM GUEST RESUME IF EXISTS
+const resumeId = localStorage.getItem("resumeId");
+
+if (resumeId) {
+  try {
+    await axios.post(
+      "/api/resume/claim",
+      { resumeId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (err) {
+    console.error("RESUME CLAIM FAILED 👉", err);
+    // do NOT block login for this
+  }
+}
+
+// ✅ NOW go to dashboard
+navigate("/dashboard");
+
 
     } catch (err) {
       console.error(

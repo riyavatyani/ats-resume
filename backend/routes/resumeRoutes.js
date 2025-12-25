@@ -63,23 +63,46 @@ router.get("/:id", async (req, res) => {
    CLAIM RESUME AFTER LOGIN
    Protected
 ================================ */
-router.post("/claim", protect, async (req, res) => {
+/* ===============================
+   FETCH LATEST RESUME (AFTER LOGIN)
+   Protected
+================================ */
+router.get("/latest", protect, async (req, res) => {
   try {
-    const { resumeId } = req.body;
+    const resume = await Resume.findOne({
+      user: req.user._id,
+    }).sort({ createdAt: -1 });
 
-    const resume = await Resume.findById(resumeId);
+    // ⚠️ IMPORTANT: do NOT throw error
     if (!resume) {
-      return res.status(404).json({ message: "Resume not found" });
+      return res.status(200).json(null);
     }
 
-    resume.user = req.user._id;
-    await resume.save();
-
-    res.json({ message: "Resume claimed successfully" });
+    res.json(resume);
   } catch (err) {
-    console.error("Resume claim error", err);
-    res.status(500).json({ message: "Resume claim failed" });
+    console.error("Fetch latest resume error 👉", err);
+    res.status(500).json({ message: "Failed to fetch resume" });
+  }
+});
+/* ===============================
+   FETCH LATEST RESUME (AFTER LOGIN)
+   Protected
+================================ */
+router.get("/latest", protect, async (req, res) => {
+  try {
+    const resume = await Resume.findOne({
+      user: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    // ⚠️ IMPORTANT: do NOT throw error
+    if (!resume) {
+      return res.status(200).json(null);
+    }
+
+    res.json(resume);
+  } catch (err) {
+    console.error("Fetch latest resume error 👉", err);
+    res.status(500).json({ message: "Failed to fetch resume" });
   }
 });
 
-module.exports = router;
