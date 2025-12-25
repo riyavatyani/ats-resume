@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE } from "../config/api";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ const Login = () => {
 
       // 🔥 ALWAYS normalize email on frontend
       const res = await axios.post(
-        `${API_BASE}/api/auth/login`,
+        `/api/auth/login`,
         {
           email: email.toLowerCase().trim(),
           password,

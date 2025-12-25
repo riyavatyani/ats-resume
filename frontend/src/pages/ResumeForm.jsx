@@ -170,6 +170,13 @@ const ResumeForm = () => {
             className="input"
             onChange={handleChange}
           />
+          <input
+  name="keywords"
+  placeholder="ATS keywords (job-specific)"
+  className="input"
+  onChange={handleChange}
+/>
+
 
           <button
             type="submit"

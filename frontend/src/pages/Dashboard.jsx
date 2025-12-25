@@ -23,7 +23,7 @@ const Dashboard = () => {
   const fetchResume = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/resume/latest`,
+        `/api/resume/latest`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
