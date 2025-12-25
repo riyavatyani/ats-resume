@@ -35,12 +35,11 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/resume", resumeRoutes);
 
 // ==================== SERVE FRONTEND ====================
-app.use(
-  express.static(path.join(__dirname, "../frontend/dist"))
-);
+// Serve frontend build
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// React fallback (VERY IMPORTANT)
-app.get("/*", (req, res) => {
+// React SPA fallback (FIXED FOR EXPRESS 5)
+app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(
     path.join(__dirname, "../frontend/dist/index.html")
   );
