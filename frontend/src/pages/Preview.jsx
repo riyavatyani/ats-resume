@@ -2,14 +2,11 @@ import { useEffect, useState } from "react";
 import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
 import axios from "axios";
 
-import { API_BASE } from "../config/api";
-
 // templates
 import TemplateOne from "../templates/TemplateOne";
 import TemplateTwo from "../templates/TemplateTwo";
 import TemplateThree from "../templates/TemplateThree";
 
-import { v4 as uuidv4 } from "uuid";
 
 
 /* ================= AI PARSER ================= */
@@ -102,70 +99,14 @@ const calculateATS = (resume) => {
 /* ================= PREVIEW ================= */
 const Preview = () => {
 
-  //
+  const [resume, setResume] = useState(null);
+  const [draft, setDraft] = useState(null);
 
   // ---------- ensure resumeId exists ----------
-  useEffect(() => {
-  const token = localStorage.getItem("token");
-  const draft = localStorage.getItem("resumeDraft");
-
-  // safety checks
-  if (!token || !draft) {
-    navigate("/");
-    return;
-  }
-
-  const runAI = async () => {
-    try {
-      const res = await axios.post(
-        `${API_BASE}/api/ai/generate`,
-        JSON.parse(draft),
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // 1️⃣ Show preview
-      setAiText(res.data.text);
-
-      // 2️⃣ Save to Mongo (NOW we save)
-      const saveRes = await axios.post(
-        `${API_BASE}/api/resume/save`,
-        {
-          ...JSON.parse(draft),
-          aiText: res.data.text,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // 3️⃣ Store real Mongo ID
-      localStorage.setItem("resumeId", saveRes.data._id);
-
-      // 4️⃣ Cleanup
-      localStorage.removeItem("resumeDraft");
-
-    } catch (err) {
-      console.error(
-        "DASHBOARD ERROR 👉",
-        err.response?.data || err.message
-      );
-    }
-  };
-
-  runAI();
-}, []);
-
 
 
   // ---------- state ----------
-  const [resume, setResume] = useState(null);
-  const [draft, setDraft] = useState(null);
+  
   const [editMode, setEditMode] = useState(false);
   const [openDownload, setOpenDownload] = useState(false);
 
@@ -176,35 +117,44 @@ const Preview = () => {
 
   // ---------- LOAD RESUME (SINGLE SOURCE OF TRUTH) ----------
  useEffect(() => {
-  const fetchResumeFromDB = async () => {
+  const fetchResume = async () => {
+    const resumeId = localStorage.getItem("resumeId");
+    if (!resumeId) return;
+
     try {
-      const token = localStorage.getItem("token");
-      const resumeId = localStorage.getItem("resumeId");
-
-      if (!token || !resumeId) {
-        console.error("Missing token or resumeId");
-        return;
-      }
-
-      const res = await axios.get(
-  `${API_BASE}/api/resume/${resumeId}`,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
+     const res = await axios.get(
+  `/api/resume/${resumeId}`
 );
 
 
-      setResume(res.data);
-      setDraft(res.data);
+
+      const resumeData = res.data;
+
+      // 🔥 THIS IS WHAT YOU WERE MISSING
+      if (resumeData.aiText) {
+        const parsed = parseResume(resumeData.aiText, resumeData);
+
+        setResume({
+          ...resumeData,
+          ...parsed, // summary, experience, skills, etc.
+        });
+
+        setDraft({
+          ...resumeData,
+          ...parsed,
+        });
+      } else {
+        setResume(resumeData);
+        setDraft(resumeData);
+      }
     } catch (err) {
       console.error("Failed to fetch resume from DB", err);
     }
   };
 
-  fetchResumeFromDB();
+  fetchResume();
 }, []);
+
 
 
   // ---------- loading ----------
@@ -302,7 +252,8 @@ const handlePaidDownload = async () => {
 
     // 1️⃣ Create order from backend
    const { data } = await axios.post(
-  `${API_BASE}/api/payment/create-order`,
+  `/api/payment/create-order`,
+
   { resumeId },
   {
     headers: {
@@ -323,8 +274,9 @@ const handlePaidDownload = async () => {
 
       handler: async function (response) {
         // 3️⃣ Verify payment on backend
-      await axios.post(
-  `${API_BASE}/api/payment/verify`,
+   await axios.post(
+  `/api/payment/verify`,
+
   {
     razorpay_payment_id: response.razorpay_payment_id,
     razorpay_order_id: response.razorpay_order_id,
@@ -375,7 +327,8 @@ const handleDownloadWithoutWatermark = async () => {
     }
 
  const res = await axios.get(
-  `${API_BASE}/api/payment/can-download`,
+  `/api/payment/can-download`,
+
   {
     params: { resumeId },
     headers: {
