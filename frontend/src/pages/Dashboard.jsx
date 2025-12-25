@@ -61,7 +61,8 @@ const Dashboard = () => {
     (resume.experience && resume.experience.length > 30) ||
     (extra.projects && extra.projects.length > 30) ||
     (extra.achievements && extra.achievements.length > 10) ||
-    (resume.skills && resume.skills.split(",").length >= 3);
+   (Array.isArray(resume.skills) && resume.skills.length >= 3);
+
 
   /* ===== SAVE EXTRA DETAILS ===== */
   const saveExtraDetails = () => {
@@ -104,9 +105,8 @@ const Dashboard = () => {
       education: updated.education || "",
       links: updated.links || "",
 
-      skills: updated.skills
-        ? updated.skills.split(",").map((s) => s.trim())
-        : [],
+      skills: Array.isArray(updated.skills) ? updated.skills : [],
+
     };
 
     localStorage.setItem(
