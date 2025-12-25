@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes = require("./routes/aiRoutes");
@@ -20,23 +21,32 @@ app.set("trust proxy", 1); // ✅ MUST BE BEFORE rate-limit
 app.use(cors());
 app.use(express.json());
 
-// rate limiter (SAFE now)
+// rate limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
 app.use(limiter);
 
-// routes
+// ==================== API ROUTES ====================
 app.use("/api/auth", authRoutes);
-app.use("/api/ai", aiRoutes);       // 🔐 protected INSIDE routes
+app.use("/api/ai", aiRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/resume", resumeRoutes);
 
-// test route
-app.get("/", (req, res) => {
-  res.send("Backend running");
+// ==================== SERVE FRONTEND ====================
+app.use(
+  express.static(path.join(__dirname, "../frontend/dist"))
+);
+
+// React fallback (VERY IMPORTANT)
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../frontend/dist/index.html")
+  );
 });
+
+// ======================================================
 
 const PORT = process.env.PORT || 5000;
 
