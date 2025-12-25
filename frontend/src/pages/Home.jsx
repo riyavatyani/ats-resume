@@ -7,7 +7,7 @@ const Home = () => {
       <p>Create an ATS-friendly resume in minutes</p>
 
       <div style={{ marginTop: "30px" }}>
-        <Link to="/resume-form">
+        <Link to="/register">
           <button style={{ marginRight: "10px" }}>
             Create Resume
           </button>

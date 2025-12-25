@@ -14,7 +14,7 @@ const Register = () => {
   // 🔒 If someone opens /register directly without resume data
   useEffect(() => {
     if (!resumeData) {
-      navigate("/resume-form");
+      navigate("/register");
     }
   }, [resumeData, navigate]);
 
