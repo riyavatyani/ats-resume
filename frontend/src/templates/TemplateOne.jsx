@@ -88,38 +88,45 @@ const TemplateOne = ({ resume, isPaid }) => {
   />
 
   {/* PROJECTS */}
-  {resume.projects?.length > 0 && (
-    <Section
-      title="Projects"
-      content={
-        <ul className="list-disc ml-5 space-y-2 text-sm whitespace-pre-line">
-          {resume.projects
-            .split("\n")
-            .filter(Boolean)
-            .map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-        </ul>
-      }
-    />
-  )}
+  {resume.projects &&
+  resume.projects
+    .split("\n")
+    .filter(line => line.trim() !== "").length > 0 && (
+      <Section
+        title="Projects"
+        content={
+          <ul className="list-disc ml-5 space-y-2 text-sm whitespace-pre-line">
+            {resume.projects
+              .split("\n")
+              .filter(line => line.trim() !== "")
+              .map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+          </ul>
+        }
+      />
+)}
 
-  {/* ACHIEVEMENTS */}
-  {resume.achievements?.length > 0 && (
-    <Section
-      title="Achievements"
-      content={
-        <ul className="list-disc ml-5 space-y-2 text-sm whitespace-pre-line">
-          {resume.achievements
-            .split("\n")
-            .filter(Boolean)
-            .map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-        </ul>
-      }
-    />
-  )}
+
+{resume.achievements &&
+  resume.achievements
+    .split("\n")
+    .filter(line => line.trim() !== "").length > 0 && (
+      <Section
+        title="Achievements"
+        content={
+          <ul className="list-disc ml-5 space-y-2 text-sm whitespace-pre-line">
+            {resume.achievements
+              .split("\n")
+              .filter(line => line.trim() !== "")
+              .map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+          </ul>
+        }
+      />
+)}
+
 
   {/* CERTIFICATIONS */}
   {resume.certifications?.length > 0 && (
