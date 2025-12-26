@@ -44,9 +44,11 @@ Experience:
 Projects:
  Bullet points
  if name of project is given explain it clearly
+ do not invent own project
 
 Achievements:
 cheack speelling and arrange in sequence line wise
+dont invent achievements . skip that section if not listed.
 
 Education:
 Clean rewritten education

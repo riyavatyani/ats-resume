@@ -57,9 +57,38 @@ const ResumeForm = () => {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    localStorage.removeItem("formattedResume");
+  const {
+    name,
+    email,
+    phone,
+    education,
+    experience,
+    skills,
+    keywords,
+  } = formData;
+
+  if (
+    !name ||
+    !email ||
+    !phone ||
+    !education ||
+    !experience ||
+    !skills ||
+    !keywords
+  ) {
+    alert("All fields except photo are mandatory");
+    return;
+  }
+
+  if (phone.length < 10) {
+    alert("Enter a valid phone number");
+    return;
+  }
+
+  localStorage.removeItem("formattedResume");
+
 
     // 1️⃣ Generate AI resume
     const generatedText = await handleGenerateAI();
@@ -136,46 +165,55 @@ const ResumeForm = () => {
           />
 
           <input
-            name="email"
-            placeholder="Email"
-            required
-            className="input"
-            onChange={handleChange}
-          />
-
-          <input
-            name="phone"
-            placeholder="Phone"
-            className="input"
-            onChange={handleChange}
-          />
-
-          <textarea
-            name="education"
-            placeholder="Education"
-            className="input"
-            onChange={handleChange}
-          />
-
-          <textarea
-            name="experience"
-            placeholder="Experience"
-            className="input"
-            onChange={handleChange}
-          />
-
-          <input
-            name="skills"
-            placeholder="Skills (React, Node, SQL)"
-            className="input"
-            onChange={handleChange}
-          />
-          <input
-  name="keywords"
-  placeholder="ATS keywords (job-specific)"
+  name="email"
+  type="email"
+  placeholder="Email"
+  required
   className="input"
   onChange={handleChange}
 />
+
+
+          <input
+  name="phone"
+  placeholder="Phone"
+  required
+  className="input"
+  onChange={handleChange}
+/>
+
+<textarea
+  name="education"
+  placeholder="Education"
+  required
+  className="input"
+  onChange={handleChange}
+/>
+
+<textarea
+  name="experience"
+  placeholder="Experience"
+  required
+  className="input"
+  onChange={handleChange}
+/>
+
+<input
+  name="skills"
+  placeholder="Skills (React, Node, SQL)"
+  required
+  className="input"
+  onChange={handleChange}
+/>
+
+<input
+  name="keywords"
+  placeholder="ATS keywords (job-specific)"
+  required
+  className="input"
+  onChange={handleChange}
+/>
+
 
 
           <button
