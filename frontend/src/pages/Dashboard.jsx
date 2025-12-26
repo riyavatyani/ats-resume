@@ -10,6 +10,8 @@ const Dashboard = () => {
     links: "",
   });
   const [showExtra, setShowExtra] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -65,12 +67,19 @@ const Dashboard = () => {
 
 
   /* ===== SAVE EXTRA DETAILS ===== */
-  const saveExtraDetails = () => {
-    const updated = { ...resume, ...extra };
-    localStorage.setItem("resumeData", JSON.stringify(updated));
-    setResume(updated);
-    alert("Extra details saved");
-  };
+ const saveExtraDetails = () => {
+  const updated = { ...resume, ...extra };
+
+  localStorage.setItem("resumeData", JSON.stringify(updated));
+  setResume(updated);
+
+  setShowExtra(false);        // close editor
+  setShowSaved(true);         // show success toast
+
+  setTimeout(() => {
+    setShowSaved(false);      // auto-hide after 2s
+  }, 2000);
+};
 
   /* ===== FREE SMART FORMATTER (NO AI) ===== */
   const generateFormattedResume = () => {
@@ -119,6 +128,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      {showSaved && (
+  <div className="fixed top-6 right-6 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    Extra details saved successfully ✓
+  </div>
+)}
+
       <div className="max-w-4xl mx-auto bg-white border rounded-xl p-8">
         <h1 className="text-2xl font-semibold mb-2">Resume Dashboard</h1>
         <p className="text-sm text-gray-500 mb-6">
