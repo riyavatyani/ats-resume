@@ -20,6 +20,34 @@ const getSection = (title) => {
   return match ? match[1].trim() : "";
 };
 
+const cleanSection = (text) => {
+  if (!text) return "";
+
+  const blockedPhrases = [
+    "no specific projects listed",
+    "no projects listed",
+    "no specific achievements listed",
+    "no achievements listed",
+    "not provided",
+    "n/a",
+  ];
+
+  const cleaned = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(
+      (line) =>
+        line.length > 0 &&
+        !blockedPhrases.some((phrase) =>
+          line.toLowerCase().includes(phrase)
+        )
+    )
+    .join("\n");
+
+  return cleaned;
+};
+
+
 
   // ✅ MOVE THIS HERE (NOT INSIDE return)
   const rawSkills =
@@ -46,9 +74,11 @@ experience:
   getSection("Experience") ||
   getSection("Work Experience"),
 
-    projects: getSection("Projects"),
-    achievements: getSection("Achievements"),
-    certifications: getSection("Certifications"),
+   projects: cleanSection(getSection("Projects")),
+achievements: cleanSection(getSection("Achievements")),
+
+   certifications: cleanSection(getSection("Certifications")),
+
     education: getSection("Education"),
     links: getSection("Links"),
 
@@ -349,6 +379,21 @@ const handleDownloadWithoutWatermark = async () => {
   }
 };
 
+const EDITABLE_FIELDS = [
+  "name",
+  "email",
+  "phone",
+  "title",
+  "summary",
+  "experience",
+  "projects",
+  "achievements",
+  "education",
+  "certifications",
+  "links",
+];
+
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -449,12 +494,10 @@ const handleDownloadWithoutWatermark = async () => {
 
       {/* EDIT MODE UI */}
       
-      {editMode && (
+{editMode && (
   <div className="bg-white border rounded-lg p-4 mb-4 space-y-3">
-    {Object.keys(draft).map(
+    {EDITABLE_FIELDS.map(
       (key) =>
-        key !== "photo" &&
-        key !== "skills" &&
         typeof draft[key] === "string" && (
           <textarea
             key={key}
@@ -468,7 +511,7 @@ const handleDownloadWithoutWatermark = async () => {
         )
     )}
 
-    {/* ✅ SKILLS EDITOR */}
+    {/* SKILLS */}
     <textarea
       value={Array.isArray(draft.skills) ? draft.skills.join(", ") : ""}
       onChange={(e) =>
@@ -485,6 +528,7 @@ const handleDownloadWithoutWatermark = async () => {
     />
   </div>
 )}
+
 
 
      <div id="resume">
