@@ -12,52 +12,70 @@ const generateAI = async (req, res) => {
       return res.status(400).json({ message: "Resume data required" });
     }
 
-    const prompt = `
+const prompt = `
 You are an expert ATS resume writer.
 
-correct spelling mistakes 
-Rewrite the following resume data into a professional, ATS-optimized resume.
-Do not add fake experience , achievements. Improve grammar and clarity only.
-GOAL:
-Rewrite the provided resume information into a highly professional,
-ATS-optimized resume suitable for modern tech roles.
+TASK:
+Rewrite the provided resume data into a highly professional, ATS-optimized resume.
+Improve grammar, clarity, and structure WITHOUT inventing any information.
 
 STRICT RULES:
-- Do NOT invent experience
-- Improve grammar and clarity
-- Use strong action verbs
+- Do NOT add fake experience, projects, achievements, certifications, or skills
+- Do NOT exaggerate or assume details
+- Improve wording and clarity only
+- Use strong, professional action verbs
 - NO markdown, emojis, explanations
 - OUTPUT PLAIN TEXT ONLY
-dont break one component into 2...3 bullet points
+- Skip any section that is empty or not provided
+- Do NOT break one item into unnecessary multiple points
+
+SECTION RULES:
+
+SUMMARY:
+- Exactly 3–4 professional sentences
+- Clear, concise, role-focused
+
+EXPERIENCE:
+- Rewrite into clean bullet-style lines
+- Do NOT use bullet symbols (•, -, *)
+- Keep points concise and impact-focused
+
+PROJECTS (if provided):
+- Rewrite clearly
+- If project name is given, explain what it does
+- Do NOT invent projects
+
+ACHIEVEMENTS (if provided):
+- Correct spelling and grammar
+- Present line-by-line
+- Do NOT invent achievements
+
+CERTIFICATIONS (if provided):
+- Clean, professional formatting
+- Do NOT invent certifications
+
+EDUCATION:
+- Rewrite cleanly using proper sentence structure
+- Do NOT use "|" as a separator
+- Use new lines where appropriate
+
+SKILLS:
+- ALWAYS include a separate Skills section
+- List skills as comma-separated values
+- Do NOT add new skills
+
+LINKS (if provided):
+- Keep links clean and readable
+- Do NOT invent links
+
 IMPORTANT:
-Always include a separate "Skills" section.
-List skills as bullet points or comma-separated values.
+- Only rewrite what is provided
+- If optional sections are empty, skip them completely
 
-
-Summary:
-strictly 3 to 4 professional sentences only 
-
-Experience:
- Bullet points without bullet symbols bcoz we already have
- dont use dash bullets pls
-
-Projects:
- Bullet points
- if name of project is given explain it clearly
- do not invent own project
-
-Achievements:
-cheack speelling and arrange in sequence line wise
-dont invent achievements . skip that section if not listed.
-
-Education:
-Clean rewritten education
-  
-dont use | this as a seperator use next lines inverted commas etc
-
-Resume data:
+RESUME DATA:
 ${JSON.stringify(data, null, 2)}
 `;
+
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",

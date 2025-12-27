@@ -13,39 +13,43 @@ import TemplateThree from "../templates/TemplateThree";
 const parseResume = (text, formData) => {
 const getSection = (title) => {
   const regex = new RegExp(
-    `${title}\\s*:\\s*([\\s\\S]*?)(?=\\n(?:Summary|Experience|Projects|Achievements|Education|Skills|Certifications|Links)\\s*:|$)`,
+    `${title}\\s*\\n([\\s\\S]*?)(?=\\n(?:SUMMARY|EXPERIENCE|PROJECTS|ACHIEVEMENTS|EDUCATION|SKILLS|CERTIFICATIONS)\\b|$)`,
     "i"
   );
   const match = text.match(regex);
   return match ? match[1].trim() : "";
 };
 
+
+
 const cleanSection = (text) => {
   if (!text) return "";
 
-  const blockedPhrases = [
-    "no specific projects listed",
-    "no projects listed",
-    "no specific achievements listed",
-    "no achievements listed",
-    "not provided",
-    "n/a",
-  ];
-
-  const cleaned = text
+  const lines = text
     .split("\n")
-    .map((line) => line.trim())
-    .filter(
-      (line) =>
-        line.length > 0 &&
-        !blockedPhrases.some((phrase) =>
-          line.toLowerCase().includes(phrase)
-        )
-    )
-    .join("\n");
+    .map((l) => l.trim())
+    .filter(Boolean);
 
-  return cleaned;
+  const result = [];
+  let title = "";
+
+  for (let line of lines) {
+    // short line → treat as heading/title
+    if (line.length <= 70 && !line.endsWith(".")) {
+      title = line;
+    } 
+    // long line → treat as description
+    else if (title) {
+      result.push(`${title}: ${line}`);
+      title = "";
+    }
+  }
+
+  return result.join("\n");
 };
+
+
+
 
 
 
@@ -159,6 +163,9 @@ const Preview = () => {
 
 
       const resumeData = res.data;
+
+      console.log("RESUME FROM DB 👉", resumeData);
+
 
       // 🔥 THIS IS WHAT YOU WERE MISSING
       if (resumeData.aiText) {
@@ -439,17 +446,16 @@ const EDITABLE_FIELDS = [
           </button>
 
           {editMode && (
-            <button
-              onClick={() => {
-                localStorage.setItem("formattedResume", JSON.stringify(draft));
-                setResume(draft); // ✅ user-edited AI text
-    localStorage.setItem("formattedResume", JSON.stringify(draft));
+           <button
+  onClick={() => {
+    setResume(draft);
     setEditMode(false);
-              }}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg"
-            >
-              Save Changes
-            </button>
+  }}
+  className="bg-green-600 text-white px-4 py-2 rounded-lg"
+>
+  Save Changes
+</button>
+
           )}
 
           {/* DOWNLOAD DROPDOWN */}

@@ -6,15 +6,22 @@ const ResumeForm = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    education: "",
-    experience: "",
-    skills: "",
-    keywords: "",
-    photo: "",
-  });
+  name: "",
+  email: "",
+  phone: "",
+  education: "",
+  experience: "",
+  skills: "",
+  keywords: "",
+  photo: "",
+
+  // OPTIONAL
+  projects: "",
+  achievements: "",
+  certifications: "",
+  links: "",
+});
+
 
   const [loadingAI, setLoadingAI] = useState(false);
 
@@ -214,6 +221,33 @@ const ResumeForm = () => {
   onChange={handleChange}
 />
 
+<textarea
+  name="projects"
+  placeholder="Projects (optional)"
+  className="input"
+  onChange={handleChange}
+/>
+
+<textarea
+  name="achievements"
+  placeholder="Achievements (optional)"
+  className="input"
+  onChange={handleChange}
+/>
+
+<textarea
+  name="certifications"
+  placeholder="Certifications (optional)"
+  className="input"
+  onChange={handleChange}
+/>
+
+<input
+  name="links"
+  placeholder="Links (GitHub, LinkedIn, Portfolio) (optional)"
+  className="input"
+  onChange={handleChange}
+/>
 
 
           <button
