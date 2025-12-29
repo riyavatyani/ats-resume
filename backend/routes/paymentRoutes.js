@@ -7,18 +7,24 @@ const { paymentLimiter } = require("../middlewares/rateLimit");
 const {
   createOrder,
   verifyPayment,
-  canDownload, // ✅ ADD THIS
+  razorpayWebhook,   // ✅ ADD
+  canDownload,
 } = require("../controllers/paymentController");
-
-router.get("/can-download", protect, canDownload);
-
 
 // 💳 Create Razorpay order (rate-limited)
 router.post("/create-order", protect, paymentLimiter, createOrder);
 
-// ✅ Verify payment (rate-limited)
+// ✅ Verify payment (optional / legacy)
 router.post("/verify", protect, paymentLimiter, verifyPayment);
 
+// 🔴 WEBHOOK (RAW BODY, NO AUTH, NO LIMITER)
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  razorpayWebhook
+);
+
+// 🔓 Check download access
 router.get("/can-download", protect, canDownload);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const Razorpay = require("razorpay");
 const Payment = require("../models/Payment");
 const Resume = require("../models/Resume");
@@ -136,3 +137,51 @@ exports.canDownload = async (req, res) => {
 
   return res.json({ allowed: true });
 };
+
+
+
+
+// ================= RAZORPAY WEBHOOK =================
+exports.razorpayWebhook = async (req, res) => {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  const signature = req.headers["x-razorpay-signature"];
+
+  const body = req.body.toString();
+
+  const expectedSignature = crypto
+    .createHmac("sha256", secret)
+    .update(body)
+    .digest("hex");
+
+  if (expectedSignature !== signature) {
+    return res.status(400).json({ message: "Invalid webhook signature" });
+  }
+
+  const event = JSON.parse(body);
+
+  if (event.event === "payment.captured") {
+    const paymentData = event.payload.payment.entity;
+
+    const payment = await Payment.findOne({
+      razorpayOrderId: paymentData.order_id,
+    });
+
+    if (payment && payment.status !== "success") {
+      payment.razorpayPaymentId = paymentData.id;
+      payment.status = "success";
+      payment.downloadsRemaining = 1;
+      await payment.save();
+    }
+  }
+
+  res.json({ status: "ok" });
+};
+
+
+////No PDF email attachment
+
+// Unlimited downloads per paid resume
+
+// Webhook + signature verification
+
+// Simple, boring, stable

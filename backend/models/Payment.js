@@ -29,7 +29,7 @@ const paymentSchema = new mongoose.Schema(
 
     downloadsRemaining: {
       type: Number,
-      default: 1, // 1 paid download
+      default: 0, // 1 paid download
     },
   },
   { timestamps: true }

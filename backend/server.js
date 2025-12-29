@@ -20,6 +20,7 @@ app.set("trust proxy", 1); // ✅ MUST BE BEFORE rate-limit
 
 // middlewares
 app.use(cors());
+app.use("/api/payment", paymentRoutes);
 app.use(express.json());
 
 
@@ -33,7 +34,7 @@ app.use(limiter);
 // ==================== API ROUTES ====================
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
-app.use("/api/payment", paymentRoutes);
+
 app.use("/api/resume", resumeRoutes);
 app.use("/api/download", downloadRoutes);
 
